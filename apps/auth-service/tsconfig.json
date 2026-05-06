@@ -1,13 +1,30 @@
 {
   "extends": "../../tsconfig.base.json",
-  "files": [],
-  "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
-    }
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../packages/libs/**/*.ts",
+    "../../packages/utils/**/*.ts",
+    "../../packages/error-handler/**/*.ts",
+    "../../packages/middleware/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "out-tsc",
+    "../../packages/components", // ❌ React components → exclude
+    "../../packages/components/**/*" // ❌ React components → exclude
   ]
 }

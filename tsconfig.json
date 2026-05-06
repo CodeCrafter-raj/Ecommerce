@@ -1,13 +1,62 @@
 {
   "extends": "./tsconfig.base.json",
-  "compileOnSave": false,
-  "files": [],
-  "references": [
-    {
-      "path": "./apps/auth-service-e2e"
-    },
-    {
-      "path": "./apps/auth-service"
-    }
+  "compilerOptions": {
+    "module": "commonjs",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "apps",
+    "packages",
+    "**/*.ts",
+    "types"
   ]
 }
+// {
+//   "extends": "./tsconfig.base.json",
+//   "compilerOptions": {
+//     "module": "commonjs",
+//     "types": [
+//       "node"
+//     ]
+//   },
+//   "include": [
+//     "apps",
+//     "packages",
+//     "**/*.ts",
+//     "types"
+//   ]
+// }
+// {
+//   "extends": "./tsconfig.base.json",
+//   "compileOnSave": false,
+//   "compilerOptions": {
+//     "module": "commonjs",
+//     "types": [
+//       "node"
+//     ]
+//   },
+//   "files": [],
+//   "references": [
+//     {},
+//     {
+//       "path": "./apps/auth-service"
+//     },
+//     {
+//       "path": "./apps/api-gateway"
+//     },
+//     {
+//       "path": "./apps/user-ui"
+//     },
+//     {
+//       "path": "./apps/seller-ui"
+//     },
+//     {
+//       "path": "./apps/product-service"
+//     },
+//     {
+//       "path": "./apps/kafka-service"
+//     }
+//   ]
+// }

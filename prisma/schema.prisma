@@ -1,0 +1,389 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model images {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  file_id   String
+  url       String
+  userId    String? @db.ObjectId @unique
+  user      users?  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Shop gallery image (many images per shop)
+  shopId    String? @db.ObjectId @unique
+  shop      shops?  @relation("ShopImages", fields: [shopId], references: [id])
+
+  // Product images (many images per product)
+  productId   String?   @db.ObjectId @unique
+  product     products? @relation("ProductImages", fields: [productId], references: [id])
+}
+
+model users {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String        @unique
+  password    String?
+  following   String[]
+  shopReviews shopReviews[]
+  avatar      String?
+  images      images? 
+
+  // existing relation
+  addresses address[]
+
+  // 👉 ADD THIS
+  orders orders[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model address {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  userId String @db.ObjectId
+  user   users  @relation(fields: [userId], references: [id])
+
+  label     String
+  name      String
+  street    String
+  city      String
+  country   String
+  zip       String
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 👉 ADD THIS
+  orders orders[]
+
+  @@index([userId])
+  @@index([userId, isDefault])
+}
+
+model shopReviews {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      users    @relation(fields: [userId], references: [id])
+  rating    Float
+  reviews   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  shopsId   String?  @db.ObjectId
+  shops     shops?   @relation(fields: [shopsId], references: [id])
+}
+
+model shops {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  bio      String?
+  category String
+
+  // Shop avatar stored as a URL — avoids circular relations
+  avatar String?
+
+  // Shop gallery images — One-to-Many
+  images images[] @relation("ShopImages")
+
+  coverBanner   String?
+  address       String
+  opening_hours String?
+  website       String?
+  socialLinks   Json[]
+  ratings       Float         @default(1)
+  reviews       shopReviews[]
+  sellerId      String        @unique @db.ObjectId
+  sellers       Sellers       @relation(fields: [sellerId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  products products[]
+}
+
+model Sellers {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String   @unique
+  phone_number String
+  country      String
+  password     String
+  stripeId     String?
+  shop         shops?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model site_config {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  categories    String[]
+  subCategories Json
+  logo          String?
+  banner        String?
+}
+
+model discount_codes {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  public_name   String
+  discountType  String
+  discountValue Float
+  discountCode  String   @unique
+  sellerId      String   @db.ObjectId
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum productStatus {
+  Active
+  Pending
+  Draft
+}
+
+model products {
+  id                   String  @id @default(auto()) @map("_id") @db.ObjectId
+  title                String
+  slug                 String  @unique
+  category             String
+  subCategory          String
+  short_description    String
+  detailed_description String?
+
+  // Product Images — MUST match the relation in images.model
+  images images[] @relation("ProductImages")
+
+  video_url             String?
+  tags                  String[]
+  brand                 String?
+  colors                String[]
+  sizes                 String[]
+  starting_date         DateTime?
+  ending_date           DateTime?
+  stock                 Int
+  sale_price            Float
+  regular_price         Float
+  ratings               Float         @default(1)
+  warranty              String?
+  custom_specifications Json?
+  custom_properties     Json?
+  isDeleted             Boolean?      @default(false)
+  cashOnDelivery        String
+  discount_codes        String[]      @db.ObjectId
+  status                productStatus @default(Active)
+  deleteAt              DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  shopId                String        @db.ObjectId
+  shop                  shops         @relation(fields: [shopId], references: [id])
+}
+
+/// Analytics: per-user recent actions
+model userAnalytics {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @unique @db.ObjectId // required for findUnique/upsert
+  actions       Json? // array of { productId, shopId, action, timestamp }
+  country       String?
+  city          String?
+  device        String?
+  recommendations Json?
+  lastVisitTime DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+/// Analytics: per-product counters
+model productAnalytics {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  productId    String    @unique @db.ObjectId // required for findUnique/upsert
+  shopId       String?   @db.ObjectId
+  views        Int       @default(0)
+  cartAdds     Int       @default(0)
+  wishListAdds Int       @default(0)
+  purchases    Int       @default(0)
+  lastViewedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+/// Add these to your existing schema.prisma (MongoDB datasource)
+
+enum PaymentMethod {
+  STRIPE
+  COD
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum DeliveryStatus {
+  ORDERED
+  PACKED
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELED
+}
+
+model orders {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  user   users  @relation(fields: [userId], references: [id])
+
+  // financials
+  subTotal       Float
+  shippingAmount Float @default(0)
+  taxAmount      Float @default(0)
+  discountAmount Float @default(0)
+  totalAmount    Float
+
+  // Payment
+  paymentMethod   PaymentMethod
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentIntentId String?
+  paymentMetadata Json?
+
+  // Coupon (if used)
+  couponId   String? @db.ObjectId
+  couponCode String?
+  couponType String?
+
+  // Shipping
+  shippingAddressId String?  @db.ObjectId
+  shippingAddress   address? @relation(fields: [shippingAddressId], references: [id])
+
+  // Items inside order
+  items OrderItem[] @relation("OrderItems")
+
+  // Payments relation (for payment audit)
+  payments payments[]
+
+  // Status & metadata
+  deliveryStatus DeliveryStatus @default(ORDERED)
+  placedAt       DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  // Session + misc
+  sessionId String?
+  metadata  Json?
+  isDeleted Boolean? @default(false)
+
+  @@index([userId])
+  @@index([paymentIntentId])
+  @@index([sessionId])
+}
+
+/// OrderItem holds a product snapshot and seller/shop info
+model OrderItem {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  orderId String @db.ObjectId
+  order   orders @relation("OrderItems", fields: [orderId], references: [id])
+
+  productId       String  @db.ObjectId
+  // snapshot fields - capture product state at time of purchase
+  title           String
+  sku             String?
+  primaryImage    String? // url
+  selectedOptions Json? // variant choices, JSON
+  unitPrice       Float // price at purchase time
+  quantity        Int
+  lineTotal       Float // unitPrice * quantity - itemDiscount
+  itemDiscount    Float?  @default(0)
+
+  // Seller & Shop info so each seller can see their items
+  shopId   String @db.ObjectId
+  sellerId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fulfillmentStatus DeliveryStatus @default(ORDERED)
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([shopId])
+  @@index([sellerId])
+}
+
+/// Notifications model (seller, user, admin notifications)
+model notifications {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  message       String
+  creatorId     String?  @db.ObjectId // who triggered the notification (user id or system)
+  receiverId    String // user id, seller id, or "admin"
+  redirect_link String?
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([receiverId])
+  @@index([creatorId])
+}
+
+/// Optional Payments audit model (if you want to store more payment info)
+model payments {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  orderId     String?       @db.ObjectId
+  order       orders?       @relation(fields: [orderId], references: [id])
+  provider    String // "stripe", "razorpay", etc
+  providerId  String // provider's payment id (PaymentIntent, payment id)
+  amount      Float
+  currency    String        @default("usd")
+  status      PaymentStatus
+  rawResponse Json?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([orderId])
+  @@index([providerId])
+}
+
+
+model conversationsGroup {
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  isGroup           Boolean @default(false)
+  name              String?
+  creatorId         String 
+  participants      String[] @db.ObjectId
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model participants{
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId    String @db.ObjectId
+  userId            String? @db.ObjectId
+  sellerId          String? @db.ObjectId
+  lastseenAt        DateTime?
+  isOnline          Boolean @default(false)
+  unreadCount       Int @default(0)
+  muted             Boolean @default(false)
+  joinedAt          DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+
+model message{
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId    String @db.ObjectId
+  senderId          String @db.ObjectId
+  senderType        String
+  content           String?
+  attachment        String[]
+  status            String @default("sent")
+  createdAt         DateTime @default(now())
+  
+  @@unique([conversationId, senderId,content,createdAt])
+}
+  

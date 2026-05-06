@@ -4,8 +4,39 @@
     "outDir": "out-tsc/@myshop/auth-service-e2e",
     "esModuleInterop": true,
     "noUnusedLocals": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "types": [
+      "node",
+      "jest"
+    ],
+    "typeRoots": [
+      "../../node_modules/@types",
+      "./node_modules/@types"
+    ]
   },
-  "include": ["jest.config.ts", "src/**/*.ts"],
+  "include": [
+    "jest.config.ts",
+    "src", // <-- includes .ts and .d.ts files now
+    "**/*.d.ts"
+  ],
   "references": []
 }
+// {
+//   "extends": "../../tsconfig.base.json",
+//   "compilerOptions": {
+//     "outDir": "out-tsc/@myshop/auth-service-e2e",
+//     "esModuleInterop": true,
+//     "noUnusedLocals": false,
+//     "noImplicitAny": false,
+//     "types": [
+//       "jest",
+//       "node"
+//     ]
+//   },
+//   "include": [
+//     "jest.config.ts",
+//     "src/**/*.ts"
+//   ],
+//   "references": []
+// }

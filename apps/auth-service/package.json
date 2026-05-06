@@ -2,82 +2,42 @@
   "name": "@myshop/auth-service",
   "version": "0.0.1",
   "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "auth-docs": "node src/swagger.js",
+    "generate-swagger-if-needed": "node scripts/generate-swagger-if-needed.cjs",
+    "copy-swagger": "node copy-swagger.cjs",
+    "copy-email-templates": "node copy-email-templates.cjs",
+    "prebuild": "npm run generate-swagger-if-needed",
+    "build": "webpack-cli build --node-env=production && npm run copy-swagger && npm run copy-email-templates",
+    "dev": "npm run generate-swagger-if-needed && npm run copy-swagger &&  npm run copy-email-templates ts-node src/main.ts"
+  },
   "nx": {
+    "name": "@myshop/auth-service",
+    "projectType": "application",
+    "sourceRoot": "apps/auth-service/src",
     "targets": {
+      "copy-swagger": {
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "apps/auth-service",
+          "command": "node copy-swagger.cjs"
+        }
+      },
       "build": {
-        "executor": "@nx/esbuild:esbuild",
-        "outputs": [
-          "{options.outputPath}"
-        ],
-        "defaultConfiguration": "production",
+        "executor": "nx:run-commands",
         "options": {
-          "platform": "node",
-          "outputPath": "apps/auth-service/dist",
-          "format": [
-            "cjs"
-          ],
-          "bundle": false,
-          "main": "apps/auth-service/src/main.ts",
-          "tsConfig": "apps/auth-service/tsconfig.app.json",
-          "assets": [
-            "apps/auth-service/src/assets"
-          ],
-          "esbuildOptions": {
-            "sourcemap": true,
-            "outExtension": {
-              ".js": ".js"
-            }
-          }
+          "cwd": "apps/auth-service",
+          "command": "webpack-cli build --node-env=production"
         },
-        "configurations": {
-          "development": {},
-          "production": {
-            "generateLockfile": true,
-            "esbuildOptions": {
-              "sourcemap": false,
-              "outExtension": {
-                ".js": ".js"
-              }
-            }
-          }
-        }
-      },
-      "prune-lockfile": {
-        "dependsOn": [
-          "build"
-        ],
-        "cache": true,
-        "executor": "@nx/js:prune-lockfile",
         "outputs": [
-          "{workspaceRoot}/apps/auth-service/dist/package.json",
-          "{workspaceRoot}/apps/auth-service/dist/package-lock.json"
+          "{workspaceRoot}/apps/auth-service/dist"
         ],
-        "options": {
-          "buildTarget": "build"
-        }
-      },
-      "copy-workspace-modules": {
         "dependsOn": [
-          "build"
-        ],
-        "cache": true,
-        "outputs": [
-          "{workspaceRoot}/apps/auth-service/dist/workspace_modules"
-        ],
-        "executor": "@nx/js:copy-workspace-modules",
-        "options": {
-          "buildTarget": "build"
-        }
-      },
-      "prune": {
-        "dependsOn": [
-          "prune-lockfile",
-          "copy-workspace-modules"
-        ],
-        "executor": "nx:noop"
+          "copy-swagger"
+        ]
       },
       "serve": {
-        "continuous": true,
         "executor": "@nx/js:node",
         "defaultConfiguration": "development",
         "dependsOn": [
@@ -100,16 +60,10 @@
         "options": {
           "passWithNoTests": true
         }
-      },
-      "docker:build": {
-        "dependsOn": [
-          "build",
-          "prune"
-        ]
       }
     }
   },
-  "dependencies": {
-    "express": "^4.21.2"
+  "devDependencies": {
+    "webpack-cli": "^6.0.1"
   }
 }

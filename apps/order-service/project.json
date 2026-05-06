@@ -1,0 +1,35 @@
+{
+  "name": "@myshop/order-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/order-service/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/order-service",
+        "command": "webpack-cli build --node-env=production"
+      },
+      "outputs": ["{workspaceRoot}/apps/order-service/dist"]
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@nx/js:node",
+      "dependsOn": ["build"],
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "@myshop/order-service:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "@myshop/order-service:build:development"
+        },
+        "production": {
+          "buildTarget": "@myshop/order-service:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

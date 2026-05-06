@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "types": ["node", "express"],
+    "rootDir": "../../",
+    "moduleResolution": "nodenext"
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../packages/**/*.ts"
+  ],
+  "exclude": []
+}

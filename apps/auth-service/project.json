@@ -1,0 +1,27 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "@myshop/auth-service",
+  "sourceRoot": "apps/auth-service/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": [
+        "{workspaceRoot}/dist/apps/auth-service"
+      ],
+      "options": {
+        "webpackConfig": "apps/auth-service/webpack.config.cjs",
+        "tsConfig": "apps/auth-service/tsconfig.json",
+        "main": "apps/auth-service/src/main.ts",
+        "outputPath": "dist/apps/auth-service"
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "options": {
+        "buildTarget": "@myshop/auth-service:build",
+        "watch": false
+      }
+    }
+  }
+}

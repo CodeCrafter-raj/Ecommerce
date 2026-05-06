@@ -1,0 +1,121 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "noEmit": true, // ⭐ REQUIRED FOR NEXT.JS
+    "allowImportingTsExtensions": true, // works now
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "types": [
+      "node"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@packages/*": [
+        "../../packages/*"
+      ],
+      "@packages/libs/*": [
+        "../../packages/libs/*"
+      ],
+      "@packages/utils/*": [
+        "../../packages/utils/*"
+      ],
+      "@packages/error-handler/*": [
+        "../../packages/error-handler/*"
+      ],
+      "@middleware/*": [
+        "../../packages/middleware/*"
+      ]
+    },
+    "allowJs": true,
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".next"
+  ]
+}
+// {
+//   "extends": "../../tsconfig.base.json",
+//   "compilerOptions": {
+//     "jsx": "preserve",
+//     "module": "esnext",
+//     "moduleResolution": "bundler",
+//     "isolatedModules": true,
+//     "lib": [
+//       "dom",
+//       "dom.iterable",
+//       "esnext"
+//     ],
+//     "types": [
+//       "node"
+//     ],
+//     "allowJs": true,
+//     "forceConsistentCasingInFileNames": true,
+//     "incremental": true,
+//     "plugins": [
+//       {
+//         "name": "next"
+//       }
+//     ],
+//     "baseUrl": ".",
+//     "paths": {
+//       "@/*": [
+//         "./src/*"
+//       ],
+//       "@packages/*": [
+//         "../../packages/*"
+//       ],
+//       "@packages/libs/*": [
+//         "../../packages/libs/*"
+//       ],
+//       "@packages/error-handler/*": [
+//         "../../packages/error-handler/*"
+//       ],
+//       "@utils/*": [
+//         "../../packages/utils/*"
+//       ]
+//     },
+//     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+//   },
+//   "include": [
+//     // existing includes
+//     "../../apps/user-ui/.next/types/**/*.ts",
+//     "../../dist/apps/user-ui/.next/types/**/*.ts",
+//     "../../packages/**/*",
+//     "next-env.d.ts",
+//     // ⭐ IMPORTANT: add this
+//     "src/**/*",
+//     ".next/types/**/*.ts"
+//   ],
+//   "exclude": [
+//     "out-tsc",
+//     "dist",
+//     "node_modules",
+//     "jest.config.ts",
+//     "src/**/*.spec.ts",
+//     "src/**/*.test.ts",
+//     ".next"
+//   ]
+// }
